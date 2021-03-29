@@ -1,12 +1,12 @@
+use super::mutation::Mutation;
+use super::query::Query;
+use crate::cli_args::Opt;
 use crate::database::PooledConnection;
-use crate::{cli_args::Opt, todo};
-use diesel::pg::PgConnection;
 use juniper::Context as JuniperContext;
-use juniper::FieldResult;
 use std::sync::Arc;
 
 #[derive(Clone)]
-pub(crate) struct Context {
+pub struct Context {
     pub opt: Opt,
     pub db: Arc<PooledConnection>,
 }
@@ -22,32 +22,8 @@ impl Context {
     }
 }
 
-pub(crate) struct Query;
+pub type Schema = juniper::RootNode<'static, Query, Mutation>;
 
-#[juniper::object(Context = Context)]
-impl Query {
-    fn todos(context: &Context) -> FieldResult<Vec<todo::Todo>> {
-        let conn: &PgConnection = &context.db;
-        todo::Todos::all_todos(conn)
-    }
-}
-
-pub(crate) struct Mutation;
-
-#[juniper::object(Context = Context)]
-impl Mutation {
-    fn create_todo(context: &Context, new_todo: todo::NewTodo) -> FieldResult<todo::Todo> {
-        let conn: &PgConnection = &context.db;
-        todo::Todos::create_todo(conn, new_todo)
-    }
-    fn delete_todo(context: &Context, id: i32) -> FieldResult<todo::Todo> {
-        let conn: &PgConnection = &context.db;
-        todo::Todos::delete_todo(conn, id)
-    }
-}
-
-pub(crate) type Schema = juniper::RootNode<'static, Query, Mutation>;
-
-pub(crate) fn create_schema() -> Schema {
+pub fn create_schema() -> Schema {
     Schema::new(Query {}, Mutation {})
 }

@@ -9,7 +9,7 @@ use juniper::FieldResult;
 pub struct Todo {
     pub id: i32,
     pub task: String,
-    pub done: bool,
+    pub done: Option<bool>,
 }
 
 #[derive(Insertable, juniper::GraphQLInputObject)]

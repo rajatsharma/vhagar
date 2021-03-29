@@ -1,17 +1,8 @@
-#[macro_use]
-extern crate diesel;
-#[macro_use]
-extern crate serde_derive;
-
-mod cli_args;
-mod database;
-mod errors;
-mod graphql;
-mod schema;
-mod todo;
-
 use actix_web::middleware::Logger;
 use actix_web::{web, App, HttpServer};
+use kensai::cli_args;
+use kensai::database;
+use kensai::graphql;
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
@@ -29,7 +20,7 @@ async fn main() -> std::io::Result<()> {
 
     // Database
     let pool = database::pool::establish_connection(opt.clone());
-    let schema = std::sync::Arc::new(crate::graphql::model::create_schema());
+    let schema = std::sync::Arc::new(graphql::model::create_schema());
 
     // Server port
     let port = opt.port;

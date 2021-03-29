@@ -3,6 +3,7 @@ name = "kensai"
 version = "0.1.0"
 authors = ["Rajat Sharma <lunasunkaiser@gmail.com>"]
 edition = "2018"
+default-run = "main"
 
 [dependencies]
 dotenv = "0.15"
