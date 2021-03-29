@@ -1,0 +1,14 @@
+/target
+**/*.rs.bk
+node_modules/
+/output/
+.env
+/.psc-package/
+/.psc*
+/.purs*
+/.psa*
+/.spago
+
+# Logs
+logs
+*.log

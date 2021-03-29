@@ -1,0 +1,15 @@
+{
+  "purescript.addSpagoSources": true,
+  "purescript.addNpmPath": true,
+  "purescript.buildCommand": "spago build -- --json-errors",
+  "[jsonc]": {
+    "editor.formatOnSave": true
+  },
+  "[purescript]": {
+    "editor.formatOnSave": true
+  },
+  "[rust]": {
+    "editor.formatOnSave": true
+  },
+  "rust-analyzer.checkOnSave.enable": true
+}
