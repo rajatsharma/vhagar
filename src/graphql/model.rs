@@ -6,7 +6,7 @@ use juniper::Context as JuniperContext;
 use std::sync::Arc;
 
 #[derive(Clone)]
-pub struct Context {
+pub(crate) struct Context {
     pub opt: Opt,
     pub db: Arc<PooledConnection>,
 }
@@ -22,8 +22,8 @@ impl Context {
     }
 }
 
-pub type Schema = juniper::RootNode<'static, Query, Mutation>;
+pub(crate) type Schema = juniper::RootNode<'static, Query, Mutation>;
 
-pub fn create_schema() -> Schema {
+pub(crate) fn create_schema() -> Schema {
     Schema::new(Query {}, Mutation {})
 }

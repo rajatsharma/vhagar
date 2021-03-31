@@ -6,7 +6,7 @@ mod query;
 
 pub mod model;
 
-pub fn route(cfg: &mut web::ServiceConfig) {
+pub(super) fn route(cfg: &mut web::ServiceConfig) {
     cfg.service(web::resource("/graphql").route(web::post().to(handler::graphql)))
         .service(web::resource("/").route(web::get().to(handler::playground)));
 }

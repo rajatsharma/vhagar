@@ -3,9 +3,10 @@ extern crate diesel;
 #[macro_use]
 extern crate serde_derive;
 
-pub mod cli_args;
-pub mod database;
+mod cli_args;
+mod database;
 mod errors;
-pub mod graphql;
+mod graphql;
 mod schema;
+pub mod server;
 mod todo;
