@@ -1,22 +1,22 @@
-module Admin.Main where
+module Main where
 
 import Prelude
 import Data.List ((!!))
 import Data.Maybe (fromMaybe, isNothing)
 import Effect (Effect)
 import Effect.Class.Console (log)
-import FS (replace)
+import FS (copyDir, replace)
 import Inflections (pascalCase, plural)
 import Node.Args (args)
 import Node.Buffer as Buffer
+import Node.ChildProcess (Exit(..), defaultSpawnOptions, onExit, spawn, stdout)
 import Node.Encoding as Encoding
 import Node.FS.Sync as S
 import Node.Globals (__dirname)
 import Node.Path as Path
-import Node.ChildProcess (Exit(..), defaultSpawnOptions, onExit, spawn, stdout)
 import Node.Process (exit)
-import Text.Handlebars (compile)
 import Node.Stream (onData)
+import Text.Handlebars (compile)
 
 appendPointer :: String
 appendPointer = "//Replace me"
@@ -44,11 +44,19 @@ writeFile = S.writeTextFile Encoding.UTF8
 
 fmt :: Effect Unit
 fmt = do
-  cargoFormatCommand <- spawn "cargo" [ "fmt" ] defaultSpawnOptions
-  onExit cargoFormatCommand \exit -> case exit of
+  command <- spawn "cargo" [ "fmt" ] defaultSpawnOptions
+  onExit command \exit -> case exit of
     Normally 0 -> pure unit
     other -> log $ "Cargo fmt failed: " <> show other
-  onData (stdout cargoFormatCommand) (Buffer.toString Encoding.UTF8 >=> log)
+  onData (stdout command) (Buffer.toString Encoding.UTF8 >=> log)
+
+dieselSetup :: Effect Unit
+dieselSetup = do
+  command <- spawn "diesel" [ "setup" ] defaultSpawnOptions
+  onExit command \exit -> case exit of
+    Normally 0 -> pure unit
+    other -> log $ "Diesel setup failed: " <> show other
+  onData (stdout command) (Buffer.toString Encoding.UTF8 >=> log)
 
 generateCode :: String -> Effect Unit
 generateCode entity = do
@@ -81,18 +89,53 @@ generateCode entity = do
   appendFile (path [ "src", "lib.rs" ]) $ "mod " <> entity <> ";"
   log "done"
 
+initProject :: String -> Effect Unit
+initProject projectName = do
+  copyDir (path [ __dirname, "src" ]) (path [ "src" ])
+  copyDir (path [ __dirname, "Cargo.toml" ]) (path [ "Cargo.toml" ])
+  copyDir (path [ __dirname, "Cargo.lock" ]) (path [ "Cargo.lock" ])
+  copyDir (path [ __dirname, ".env.example" ]) (path [ ".env.example" ])
+  copyDir (path [ __dirname, ".editorconfig" ]) (path [ ".editorconfig" ])
+  dieselSetup
+
 getEntity :: Effect String
 getEntity = do
   let
-    entity = args !! 0
+    entity = args !! 1
   if (isNothing entity) then do
     log "Entity not passed"
     exit 1
   else
     pure $ fromMaybe "" entity
 
-main :: Effect Unit
-main = do
+data Option
+  = Init
+  | Generate
+  | None
+
+option :: String -> Option
+option "init" = Init
+
+option "generate" = Generate
+
+option _ = None
+
+generate :: Effect Unit
+generate = do
   entity <- getEntity
   generateCode entity
   fmt
+
+init :: Effect Unit
+init = do
+  name <- getEntity
+  initProject name
+
+main :: Effect Unit
+main = do
+  let
+    command = fromMaybe "" $ args !! 0
+  case option command of
+    Init -> init
+    Generate -> generate
+    _ -> log "Command not found."

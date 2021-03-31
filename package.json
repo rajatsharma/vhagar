@@ -5,7 +5,19 @@
   "repository": "https://github.com/rajatsharma/kensai.git",
   "author": "Rajat Sharma <lunasunkaiser@gmail.com>",
   "license": "MIT",
+  "bin": {
+    "kensai": "index.js"
+  },
+  "files": [
+    "src",
+    ".gitignore",
+    ".editorconfig",
+    "index.js",
+    "Cargo.*",
+    ".env.example"
+  ],
   "dependencies": {
+    "fs-extra": "^9.1.0",
     "handlebars": "^4.7.7",
     "pascal-case": "^3.1.2",
     "pluralize": "^8.0.0",
