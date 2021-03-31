@@ -22,15 +22,18 @@ pub struct NewTodo {
 pub struct Todos;
 
 impl Todos {
-    pub fn all_todos(conn: &PgConnection) -> FieldResult<Vec<Todo>> {
-        Ok(todos::table.load::<Todo>(conn)?)
+    pub fn all(conn: &PgConnection) -> FieldResult<Vec<Todo>> {
+        todos::table.load::<Todo>(conn).map_err(|err| err.into())
     }
-    pub fn create_todo(conn: &PgConnection, new_todo: NewTodo) -> FieldResult<Todo> {
-        Ok(diesel::insert_into(todos::table)
+    pub fn create(conn: &PgConnection, new_todo: NewTodo) -> FieldResult<Todo> {
+        diesel::insert_into(todos::table)
             .values(&new_todo)
-            .get_result(conn)?)
+            .get_result(conn)
+            .map_err(|err| err.into())
     }
-    pub fn delete_todo(conn: &PgConnection, id: i32) -> FieldResult<Todo> {
-        Ok(diesel::delete(todos::table.filter(todos::id.eq(id))).get_result(conn)?)
+    pub fn delete(conn: &PgConnection, id: i32) -> FieldResult<Todo> {
+        diesel::delete(todos::table.filter(todos::id.eq(id)))
+            .get_result(conn)
+            .map_err(|err| err.into())
     }
 }

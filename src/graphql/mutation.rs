@@ -1,5 +1,4 @@
 use super::model::Context;
-use crate::todo;
 use diesel::pg::PgConnection;
 use juniper::FieldResult;
 
@@ -7,12 +6,17 @@ pub struct Mutation;
 
 #[juniper::object(Context = Context)]
 impl Mutation {
-    fn create_todo(context: &Context, new_todo: todo::NewTodo) -> FieldResult<todo::Todo> {
+    fn create_todo(
+        context: &Context,
+        new_todo: crate::todo::NewTodo,
+    ) -> FieldResult<crate::todo::Todo> {
         let conn: &PgConnection = &context.db;
-        todo::Todos::create_todo(conn, new_todo)
+        crate::todo::Todos::create(conn, new_todo)
     }
-    fn delete_todo(context: &Context, id: i32) -> FieldResult<todo::Todo> {
+    fn delete_todo(context: &Context, id: i32) -> FieldResult<crate::todo::Todo> {
         let conn: &PgConnection = &context.db;
-        todo::Todos::delete_todo(conn, id)
+        crate::todo::Todos::delete(conn, id)
     }
+
+    //Replace me
 }

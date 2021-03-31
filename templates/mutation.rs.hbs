@@ -1,0 +1,8 @@
+fn create_{{entity_singular}}(context: &Context, new_{{entity_singular}}: crate::{{mod}}::New{{model_singular}}) -> FieldResult<crate::{{mod}}::{{model_singular}}> {
+    let conn: &PgConnection = &context.db;
+    crate::{{mod}}::{{model_plural}}::create(conn, new_{{entity_singular}})
+}
+fn delete_{{entity_singular}}(context: &Context, id: i32) -> FieldResult<crate::{{mod}}::{{model_singular}}> {
+    let conn: &PgConnection = &context.db;
+    crate::{{mod}}::{{model_plural}}::delete(conn, id)
+}

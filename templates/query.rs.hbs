@@ -1,0 +1,4 @@
+fn {{entity_plural}}(context: &Context) -> FieldResult<Vec<crate::{{mod}}::{{model_singular}}>> {
+    let conn: &PgConnection = &context.db;
+    crate::{{mod}}::{{model_plural}}::all(conn)
+}

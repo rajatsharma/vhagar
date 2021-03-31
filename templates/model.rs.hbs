@@ -1,0 +1,34 @@
+use crate::schema::{{entity_plural}};
+use diesel::pg::PgConnection;
+use diesel::ExpressionMethods;
+use diesel::QueryDsl;
+use diesel::RunQueryDsl;
+use juniper::FieldResult;
+
+#[derive(Queryable, juniper::GraphQLObject)]
+pub struct {{model_singular}} {
+    pub id: i32,
+}
+
+#[derive(Insertable, juniper::GraphQLInputObject)]
+#[table_name = "{{entity_plural}}"]
+pub struct New{{model_singular}} {}
+
+pub struct {{model_plural}};
+
+impl {{model_plural}} {
+    pub fn all(conn: &PgConnection) -> FieldResult<Vec<{{model_singular}}>> {
+        {{entity_plural}}::table.load::<{{model_singular}}>(conn).map_err(|err| err.into())
+    }
+    pub fn create(conn: &PgConnection, new_{{entity_singular}}: New{{model_singular}}) -> FieldResult<{{model_singular}}> {
+        diesel::insert_into({{entity_plural}}::table)
+            .values(&new_{{entity_singular}})
+            .get_result(conn)
+            .map_err(|err| err.into())
+    }
+    pub fn delete(conn: &PgConnection, id: i32) -> FieldResult<{{model_singular}}> {
+        diesel::delete({{entity_plural}}::table.filter({{entity_plural}}::id.eq(id)))
+            .get_result(conn)
+            .map_err(|err| err.into())
+    }
+}
