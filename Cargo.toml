@@ -24,7 +24,6 @@ serde_json = "1.0"
 anyhow = "1.0"
 thiserror = "1.0"
 num = "0.2"
-shrinkwraprs = "0.2"
 structopt = "0.3"
 regex = "1"
 
