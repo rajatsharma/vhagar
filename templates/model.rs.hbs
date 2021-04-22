@@ -21,6 +21,15 @@ pub struct New{{model_singular}} {
   {{/each}}
 }
 
+#[derive(AsChangeset, juniper::GraphQLInputObject)]
+#[table_name = "{{entity_plural}}"]
+pub struct {{model_singular}}Changeset {
+    id: i32,
+    {{#each columns as |column|}}
+      {{column.name}}: Option<{{column.type}}>,
+    {{/each}}
+}
+
 pub struct {{model_plural}};
 
 impl {{model_plural}} {
@@ -35,6 +44,12 @@ impl {{model_plural}} {
     }
     pub fn delete(conn: &PgConnection, id: i32) -> FieldResult<{{model_singular}}> {
         diesel::delete({{entity_plural}}::table.filter({{entity_plural}}::id.eq(id)))
+            .get_result(conn)
+            .map_err(|err| err.into())
+    }
+    pub fn update(conn: &PgConnection, changeset: {{model_singular}}Changeset) -> FieldResult<{{model_singular}}> {
+        diesel::update({{entity_plural}}::table.filter({{entity_plural}}::id.eq(changeset.id)))
+            .set(changeset)
             .get_result(conn)
             .map_err(|err| err.into())
     }

@@ -6,3 +6,10 @@ fn delete_{{entity_singular}}(context: &Context, id: i32) -> FieldResult<crate::
     let conn: &PgConnection = &context.db;
     crate::{{mod}}::{{model_plural}}::delete(conn, id)
 }
+fn update_{{entity_singular}}(
+    context: &Context,
+    changeset: crate::{{mod}}::{{model_singular}}Changeset,
+) -> FieldResult<crate::{{mod}}::{{model_singular}}> {
+    let conn: &PgConnection = &context.db;
+    crate::{{mod}}::{{model_plural}}::update(conn, changeset)
+}
