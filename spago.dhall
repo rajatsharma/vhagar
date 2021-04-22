@@ -1,9 +1,8 @@
 { name = "kensai"
 , dependencies =
-  [ "console"
+  [ "common-utils"
+  , "console"
   , "effect"
-  , "handlebars"
-  , "node-args"
   , "node-child-process"
   , "node-fs"
   , "node-process"
