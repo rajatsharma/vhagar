@@ -8,6 +8,8 @@ import CommonUtils.Node.FileOps (copyDir, mkPath, readTextFileSync, replace, wri
 import CommonUtils.Node.Process (argsList)
 import Data.List (List(..), (:), toUnfoldable)
 import Effect (Effect)
+import Data.String (Pattern(..), split)
+import Effect.Unsafe (unsafePerformEffect)
 import Effect.Class.Console (log)
 import Node.Buffer as Buffer
 import Node.ChildProcess (Exit(..), defaultSpawnOptions, onExit, spawn, stdout)
@@ -18,6 +20,7 @@ import Node.Process (exit)
 import Node.Stream (onData)
 
 type Args = { option:: Option, secondary:: String, tertiary:: Array String }
+type Column = { name:: String, "type":: String, "sql_type" :: String }
 
 appendPointer :: String
 appendPointer = "//Replace me"
@@ -55,6 +58,27 @@ dieselSetup = do
     other -> log $ "Diesel setup failed: " <> show other
   onData (stdout command) (Buffer.toString Encoding.UTF8 >=> log)
 
+getSqlType :: String -> String
+getSqlType "String" = "Varchar"
+getSqlType "i32" = "Int4"
+getSqlType "uuid" = "Uuid"
+getSqlType "bool" = "Bool"
+getSqlType "f64" = "float8"
+getSqlType any = any
+
+getRustType :: String -> String
+getRustType "uuid" = "uuid::Uuid"
+getRustType any = any
+
+processColumn :: String -> Column
+processColumn columnStr = unsafePerformEffect do
+  case split (Pattern ":") columnStr of
+    [name, typename] -> pure {
+      name: name, "type": getRustType typename, "sql_type": getSqlType typename
+    }
+    [name] -> logExit $ "No Type supplied for:" <> name
+    illegal -> logExit $ "Illegal pattern:" <> columnStr
+
 model :: Args -> Effect Unit
 model args = do
   let entity = args.secondary
@@ -63,10 +87,11 @@ model args = do
   schemaTemplate <- getTemplate "schema"
   modelTemplate <- getTemplate "model"
   let
+    columns = processColumn <$> args.tertiary
     entityPlural = plural entity
     modelPlural = pascalCase $ plural entity
     modelSingular = pascalCase entity
-    compile = makeCompilerWithVariables { "entity_plural": entityPlural, "model_plural": modelPlural, "model_singular": modelSingular, "mod": entity, "entity_singular": entity }
+    compile = makeCompilerWithVariables { "entity_plural": entityPlural, "model_plural": modelPlural, "model_singular": modelSingular, "mod": entity, "entity_singular": entity, "columns": columns }
     queryContents = compile queryTemplate
     mutationContents = compile mutationTemplate
     schemaContents = compile schemaTemplate

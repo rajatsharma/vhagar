@@ -8,11 +8,18 @@ use juniper::FieldResult;
 #[derive(Queryable, juniper::GraphQLObject)]
 pub struct {{model_singular}} {
     pub id: i32,
+    {{#each columns as |column|}}
+      pub {{column.name}}: {{column.type}},
+    {{/each}}
 }
 
 #[derive(Insertable, juniper::GraphQLInputObject)]
 #[table_name = "{{entity_plural}}"]
-pub struct New{{model_singular}} {}
+pub struct New{{model_singular}} {
+  {{#each columns as |column|}}
+      {{column.name}}: {{column.type}},
+  {{/each}}
+}
 
 pub struct {{model_plural}};
 
