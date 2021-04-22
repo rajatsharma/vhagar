@@ -6,4 +6,12 @@ table! {
     }
 }
 
+table! {
+  contents (id) {
+    id -> Int4,
+      name -> Varchar,
+      uid -> Uuid,
+  }
+}
+
 //Replace me

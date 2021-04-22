@@ -9,4 +9,3 @@ mod errors;
 mod graphql;
 mod schema;
 pub mod server;
-mod todo;
