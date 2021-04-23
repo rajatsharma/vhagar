@@ -4,13 +4,14 @@ import Prelude
 
 import CommonUtils.Handlebars (compile)
 import CommonUtils.Inflections (pascalCase, plural)
-import CommonUtils.Node.FileOps (copyDir, mkPath, readTextFileSync, replace, writeTextFileSync)
+import CommonUtils.Node.FileOps (copyDir, mkPath, readTextFileSync, writeTextFileSync)
+import CommonUtils.Node.FileOps (replace) as FileOps
 import CommonUtils.Node.Process (argsList)
 import Data.List (List(..), (:), toUnfoldable)
+import Data.String (Pattern(..), Replacement(..), replace, split)
 import Effect (Effect)
-import Data.String (Pattern(..), split)
-import Effect.Unsafe (unsafePerformEffect)
 import Effect.Class.Console (log)
+import Effect.Unsafe (unsafePerformEffect)
 import Node.Buffer as Buffer
 import Node.ChildProcess (Exit(..), defaultSpawnOptions, onExit, spawn, stdout)
 import Node.Encoding as Encoding
@@ -31,7 +32,7 @@ logExit logStr = do
   exit 1
 
 appendTo :: String -> String -> Effect Unit
-appendTo file contents = replace { files: file, from: appendPointer, to: contents <> "\n" <> appendPointer }
+appendTo file contents = FileOps.replace { files: file, from: appendPointer, to: contents <> "\n" <> appendPointer }
 
 makeCompilerWithVariables :: forall a. a -> String -> String
 makeCompilerWithVariables variables template = compile template variables
@@ -58,17 +59,26 @@ dieselSetup = do
     other -> log $ "Diesel setup failed: " <> show other
   onData (stdout command) (Buffer.toString Encoding.UTF8 >=> log)
 
+replaceFromTo :: String -> String -> String -> String
+replaceFromTo from to = replace (Pattern from) (Replacement to)
+
+handleSquares :: String -> String
+handleSquares str = replaceFromTo "[" "<" $ replaceFromTo "]" ">" str
+
 getSqlType :: String -> String
-getSqlType "String" = "Varchar"
-getSqlType "i32" = "Int4"
-getSqlType "uuid" = "Uuid"
-getSqlType "bool" = "Bool"
-getSqlType "f64" = "float8"
-getSqlType any = any
+getSqlType str =
+  handleSquares $
+  replaceFromTo "String" "Varchar" $
+  replaceFromTo "i32" "Int4" $
+  replaceFromTo "uuid" "Uuid" $
+  replaceFromTo "bool" "Bool" $
+  replaceFromTo "f64" "float8" $
+  replaceFromTo "Option" "Nullable" $
+  replaceFromTo "Vec" "Array" $
+  str
 
 getRustType :: String -> String
-getRustType "uuid" = "uuid::Uuid"
-getRustType any = any
+getRustType str = handleSquares $ replaceFromTo "uuid" "uuid::Uuid" $ str
 
 processColumn :: String -> Column
 processColumn columnStr = unsafePerformEffect do

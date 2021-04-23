@@ -9,7 +9,7 @@ use juniper::FieldResult;
 pub struct {{model_singular}} {
     pub id: i32,
     {{#each columns as |column|}}
-      pub {{column.name}}: {{column.type}},
+      pub {{column.name}}: {{{column.type}}},
     {{/each}}
 }
 
@@ -17,7 +17,7 @@ pub struct {{model_singular}} {
 #[table_name = "{{entity_plural}}"]
 pub struct New{{model_singular}} {
   {{#each columns as |column|}}
-      {{column.name}}: {{column.type}},
+      {{column.name}}: {{{column.type}}},
   {{/each}}
 }
 
@@ -26,7 +26,7 @@ pub struct New{{model_singular}} {
 pub struct {{model_singular}}Changeset {
     id: i32,
     {{#each columns as |column|}}
-      {{column.name}}: Option<{{column.type}}>,
+      {{column.name}}: Option<{{{column.type}}}>,
     {{/each}}
 }
 
