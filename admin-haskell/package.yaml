@@ -1,0 +1,22 @@
+name:                kensai-haskell
+version:             0.1.0.0
+#synopsis:
+#description:
+homepage:            https://github.com/rajatsharma/kensai-haskell#readme
+license:             BSD3
+author:              Rajat Sharma
+maintainer:          rajatsharma@github.com
+copyright:           2022 Rajat Sharma
+category:            Web
+extra-source-files:
+- README.md
+- ChangeLog.md
+
+dependencies:
+  - base >= 4.7 && < 5
+  - text
+
+executables:
+  kensai-haskell:
+    source-dirs:      src
+    main:             Main.hs
