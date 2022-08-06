@@ -30,6 +30,8 @@ executable kensai
   build-depends:
       base >=4.7 && <5
     , directory
+    , file-embed
+    , filepath
     , inflections
     , neat-interpolation
     , process

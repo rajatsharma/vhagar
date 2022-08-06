@@ -19,6 +19,8 @@ dependencies:
   - soothsayer
   - directory
   - neat-interpolation
+  - file-embed
+  - filepath
 
 executables:
   kensai:

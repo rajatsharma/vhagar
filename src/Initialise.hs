@@ -1,7 +1,9 @@
 {-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE TemplateHaskell #-}
 
 module Initialise where
 
+import Data.FileEmbed
 import Data.Text (Text, intercalate, pack, unpack)
 import Data.Text.IO (readFile, writeFile)
 import GHC.TypeLits (ErrorMessage (Text))
@@ -15,7 +17,8 @@ import GQLDSL
   )
 import GenUtils (lineline)
 import Soothsayer ((***))
-import System.Directory (createDirectoryIfMissing)
+import System.Directory (createDirectoryIfMissing, getCurrentDirectory)
+import System.FilePath (takeBaseName)
 import System.Process (callCommand, readProcess, runCommand)
 import Prelude hiding (readFile, writeFile)
 
@@ -46,12 +49,26 @@ initialise args = do
   callCommand "go mod tidy"
   callCommand "go run github.com/99designs/gqlgen init"
   let emptySchema = intercalate "\n\n" [goModeldirective, pack typeGenerateMarker, pack inputGenerateMarker, emptyQuery, emptyMutation]
+  currentDirectory <- getCurrentDirectory
+  let directoryName = takeBaseName currentDirectory
+
   writeFile "./graph/schema.graphqls" emptySchema
   writeFile ".vhagar" $ pack $ "{0}" *** [unpack name]
+
+  let serverGoContents = $(embedStringFile "template/server.go.template") *** [unpack name]
+  writeFile "server.go" $ pack serverGoContents
+  let makefileContents = $(embedStringFile "template/Makefile.template") *** [directoryName]
+  writeFile "Makefile" $ pack makefileContents
+  let dockerComposeContents = $(embedStringFile "template/docker-compose-dev.yml") *** [directoryName]
+  writeFile "docker-compose-dev.yml" $ pack dockerComposeContents
+
   callCommand "go get -u gorm.io/gorm"
   callCommand "go get -u gorm.io/driver/postgres"
   callCommand "go get -u github.com/google/uuid"
+
   createDirectoryIfMissing True "./graph/entity"
+
   writeMigrationFile
   writeEntityFile
+
   callCommand "go mod tidy"

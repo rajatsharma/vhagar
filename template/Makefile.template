@@ -1,0 +1,10 @@
+export POSTGRES_URL := postgres://postgres:postgres@localhost:5432/{0}_dev?sslmode=disable
+
+run:
+	go run server.go
+
+db-up:
+	docker compose -f docker-compose-dev.yml up -d
+
+db-down:
+	docker compose -f docker-compose-dev.yml down
