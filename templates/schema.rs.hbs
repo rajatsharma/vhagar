@@ -1,8 +1,0 @@
-table! {
-  {{entity_plural}} (id) {
-    id -> Int4,
-    {{#each columns as |column|}}
-      {{column.name}} -> {{{column.sql_type}}},
-    {{/each}}
-  }
-}
