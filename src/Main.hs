@@ -95,7 +95,7 @@ shell = runner =<< execParser opts
       info (wipParser <**> helper) $
         fullDesc
           <> progDesc "Enter Command to run, see available commands for command descriptions."
-          <> header "WIP: Initialises Projects"
+          <> header "Vhagar"
 
 main :: IO ()
 main = shell
