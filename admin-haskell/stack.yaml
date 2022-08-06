@@ -64,3 +64,6 @@ packages:
 #
 # Allow a newer minor version of GHC than the snapshot specifies
 # compiler-check: newer-minor
+extra-deps:
+- git: git@github.com:rajatsharma/soothsayer.git
+  commit: 01c1858b603f3a89bec6ace122ee67e6921bb03f

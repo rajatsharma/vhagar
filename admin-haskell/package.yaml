@@ -10,13 +10,16 @@ copyright:           2022 Rajat Sharma
 category:            Web
 extra-source-files:
 - README.md
-- ChangeLog.md
 
 dependencies:
   - base >= 4.7 && < 5
   - text
+  - inflections
+  - process
+  - soothsayer
+  - directory
 
 executables:
-  kensai-haskell:
+  kensai:
     source-dirs:      src
     main:             Main.hs

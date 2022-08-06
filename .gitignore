@@ -17,3 +17,5 @@ logs
 
 # Postgres lock
 .s.PGSQL.*
+
+.stack-work
