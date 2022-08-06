@@ -39,11 +39,11 @@ entityGenerateMarker = "// kensai-generate-marker-entity"
 
 handleOptional :: Text -> Text
 handleOptional gqlType
-  | "!" `isSuffixOf` gqlType = "*" <> fromMaybe "" (stripSuffix "!" gqlType)
-  | otherwise = gqlType
+  | "!" `isSuffixOf` gqlType = fromMaybe "" $ stripSuffix "!" gqlType
+  | otherwise = "*" <> gqlType
 
 getGoType :: Text -> Text
-getGoType = handleOptional . ("String" ~> "string") . ("Int" ~> "uint") . ("Float" ~> "float") . ("Boolean" ~> "bool")
+getGoType = handleOptional . ("String" ~> "string") . ("Int" ~> "uint") . ("Float" ~> "float32") . ("Boolean" ~> "bool")
 
 parseGqlField :: GraphqlField -> GoStructField
 parseGqlField gqlField =

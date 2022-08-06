@@ -4,10 +4,10 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 
-name:           kensai-haskell
+name:           vhagar
 version:        0.1.0.0
 category:       Web
-homepage:       https://github.com/rajatsharma/kensai-haskell#readme
+homepage:       https://github.com/rajatsharma/vhagar#readme
 author:         Rajat Sharma
 maintainer:     rajatsharma@github.com
 copyright:      2022 Rajat Sharma
@@ -24,13 +24,14 @@ executable kensai
       GQLDSL
       Initialise
       ModelGen
-      Paths_kensai_haskell
+      Paths_vhagar
   hs-source-dirs:
       src
   build-depends:
       base >=4.7 && <5
     , directory
     , inflections
+    , neat-interpolation
     , process
     , soothsayer
     , text

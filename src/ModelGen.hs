@@ -39,8 +39,8 @@ identity x = x
 regenerate :: IO ()
 regenerate = callCommand "go run github.com/99designs/gqlgen generate"
 
-graphqlGenerator :: String -> String -> [GraphqlField] -> Text -> Text
-graphqlGenerator entity entityPlural fields =
+graphqlGenerator :: String -> String -> String -> [GraphqlField] -> Text -> Text
+graphqlGenerator entity entityPlural pkgName fields =
   identity
     . generateType
     . generateCreateInput
@@ -51,7 +51,7 @@ graphqlGenerator entity entityPlural fields =
     . generateDeleteMutation
   where
     fieldsWithId = fields ++ [GraphqlField "id" "ID!"]
-    gqlType = createGraphqlType entity fieldsWithId
+    gqlType = createGraphqlType entity pkgName fieldsWithId
     gqlCreateInput = createGraphqlCreateInput entity fieldsWithId
     gqlDeleteInput = createGraphqlDeleteInput entity fieldsWithId
     gqlListQuery = createListQuery entity entityPlural
@@ -81,8 +81,10 @@ model args = do
   let entityPlural = unpack $ modelNamePlural args
   let gqlFields = fields args
 
+  pkgName <- readFile ".vhagar"
+
   schemaContents <- readFile schemaFile
-  let generateGraphql = graphqlGenerator entity entityPlural gqlFields
+  let generateGraphql = graphqlGenerator entity entityPlural (unpack pkgName) gqlFields
   writeFile schemaFile $ generateGraphql schemaContents
 
   entityContents <- readFile entityFile

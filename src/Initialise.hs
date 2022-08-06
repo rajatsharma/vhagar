@@ -9,10 +9,12 @@ import GODSL (GoFuncArg (GoFuncArg), entityGenerateMarker, goFunc, goImport, goP
 import GQLDSL
   ( emptyMutation,
     emptyQuery,
+    goModeldirective,
     inputGenerateMarker,
     typeGenerateMarker,
   )
 import GenUtils (lineline)
+import Soothsayer ((***))
 import System.Directory (createDirectoryIfMissing)
 import System.Process (callCommand, readProcess, runCommand)
 import Prelude hiding (readFile, writeFile)
@@ -43,11 +45,13 @@ initialise args = do
   writeFile "tools.go" $ pack toolsGo
   callCommand "go mod tidy"
   callCommand "go run github.com/99designs/gqlgen init"
-  let emptySchema = intercalate "\n\n" [pack typeGenerateMarker, pack inputGenerateMarker, emptyQuery, emptyMutation]
+  let emptySchema = intercalate "\n\n" [goModeldirective, pack typeGenerateMarker, pack inputGenerateMarker, emptyQuery, emptyMutation]
   writeFile "./graph/schema.graphqls" emptySchema
+  writeFile ".vhagar" $ pack $ "{0}" *** [unpack name]
   callCommand "go get -u gorm.io/gorm"
   callCommand "go get -u gorm.io/driver/postgres"
   callCommand "go get -u github.com/google/uuid"
   createDirectoryIfMissing True "./graph/entity"
   writeMigrationFile
   writeEntityFile
+  callCommand "go mod tidy"
