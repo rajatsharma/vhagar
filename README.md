@@ -2,19 +2,22 @@
 
 ## Usage
 
-- Initialise project `vhagar init PROJECT_NAME`
+- Initialise project 
+  - `vhagar init PROJECT_NAME`
 
 ```sh
 vhagar init my_gql_server
 ```
 
-- Create DB entities and associated Graphql Schema `kensai gen-model MODEL_NAME MODEL_NAME_PLURAL [FIELD...]`
+- Create DB entities and associated Graphql Schema 
+  - `vhagar gen-model MODEL_NAME MODEL_NAME_PLURAL [FIELD...]`
 
 ```sh
 vhagar gen-model blog blogs name:String! desc:String! author:String!
 ```
 
-- Regenerate Graphql resolvers after updating Graphql schema `vhagar regen`
+- Regenerate Graphql resolvers after updating Graphql schema 
+  - `vhagar regen`
 
 ```sh
 vhagar regen
