@@ -16,7 +16,7 @@ build-type:     Simple
 extra-source-files:
     README.md
 
-executable kensai
+executable vhagar
   main-is: Main.hs
   other-modules:
       GenUtils

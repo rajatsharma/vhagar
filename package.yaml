@@ -24,6 +24,6 @@ dependencies:
 - optparse-applicative
 
 executables:
-  kensai:
+  vhagar:
     source-dirs:      src
     main:             Main.hs
