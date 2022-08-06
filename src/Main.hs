@@ -18,14 +18,32 @@ import GQLDSL (GraphqlField (..), createCreateMutation, createDeleteMutation, cr
 import GenUtils ((++>), (+>>), (~>))
 import Initialise (InitArgs (..), initialise)
 import ModelGen (ModelArgs (..), model, regenerate)
+import Options.Applicative
+  ( Alternative (many),
+    Applicative (pure, (<*>)),
+    Parser,
+    command,
+    execParser,
+    fullDesc,
+    header,
+    helper,
+    idm,
+    info,
+    metavar,
+    progDesc,
+    strArgument,
+    subparser,
+    (<$>),
+    (<**>),
+  )
 import System.Environment (getArgs, getEnv)
 import System.Exit (exitFailure)
 import System.Process (callCommand, readProcess, runCommand)
 import Prelude hiding (readFile, writeFile)
 
-data Command
-  = Init
-  | Model
+data Vhagar
+  = Init String
+  | Model String String [String]
   | Regen
 
 logExit :: Text -> IO a
@@ -42,37 +60,42 @@ processField columnStr = unsafePerformIO $ do
     [name] -> logExit $ "No Type supplied for:" <> name
     _ -> logExit $ "Illegal pattern:" <> columnStr
 
-modelArgsInspector :: [Text] -> IO ModelArgs
-modelArgsInspector ["gen-model"] = do
-  logExit "Command gen-model requires one more argument model-name and optional list of columns followed by it"
-modelArgsInspector ["gen-model", _] = logExit "Plural form of model is also required"
-modelArgsInspector ["gen-model", name, namePlural] = do
-  putStrLn "No columns supplied model will be created with only one column id:Int"
-  pure ModelArgs {modelName = name, modelNamePlural = namePlural, fields = []}
-modelArgsInspector ("gen-model" : name : namePlural : xs) = pure ModelArgs {modelName = name, modelNamePlural = namePlural, fields = processField `map` xs}
-modelArgsInspector null = logExit "Required arg, nothing supplied"
+createInit :: Parser Vhagar
+createInit = Init <$> strArgument (metavar "PROJECT_NAME")
 
-initArgsInspector :: [Text] -> IO InitArgs
-initArgsInspector ["init"] = logExit "Required arg, nothing supplied"
-initArgsInspector ["init", name] = pure InitArgs {projectName = name}
-initArgsInspector _ = logExit "Required arg, nothing supplied"
+createModel :: Parser Vhagar
+createModel =
+  Model
+    <$> strArgument (metavar "MODEL_NAME")
+    <*> strArgument (metavar "MODEL_NAME_PLURAL")
+    <*> many (strArgument (metavar "FIELD..."))
 
-argsInspector :: [String] -> IO Command
-argsInspector ("init" : _) = pure Init
-argsInspector ("gen-model" : _) = pure Model
-argsInspector ("regen" : _) = pure Regen
-argsInspector _ = logExit "Invalid command"
+createRegen :: Parser Vhagar
+createRegen = pure Regen
+
+wipParser :: Parser Vhagar
+wipParser =
+  subparser $
+    command "init" (info createInit $ progDesc "Initialise project")
+      <> command "gen-model" (info createModel $ progDesc "Generate graphql model and db entity")
+      <> command "regen" (info createRegen $ progDesc "Regenerate schema")
+
+runner :: Vhagar -> IO ()
+runner (Init name) = initialise $ InitArgs $ pack name
+runner (Model modelName modelNamePlural modelFields) = do
+  if not (null modelFields) then logExit "No fields supplied" else pure ()
+  let fields = processField . pack <$> modelFields
+  model $ ModelArgs (pack modelName) (pack modelNamePlural) fields
+runner Regen = regenerate
+
+shell :: IO ()
+shell = runner =<< execParser opts
+  where
+    opts =
+      info (wipParser <**> helper) $
+        fullDesc
+          <> progDesc "Enter Command to run, see available commands for command descriptions."
+          <> header "WIP: Initialises Projects"
 
 main :: IO ()
-main = do
-  args <- getArgs
-  command <- argsInspector args
-  let textArgs = pack `map` args
-  case command of
-    Model -> do
-      verifiedArgs <- modelArgsInspector textArgs
-      model verifiedArgs
-    Init -> do
-      verifiedArgs <- initArgsInspector textArgs
-      initialise verifiedArgs
-    Regen -> regenerate
+main = shell

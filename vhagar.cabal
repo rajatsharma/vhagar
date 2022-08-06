@@ -34,6 +34,7 @@ executable kensai
     , filepath
     , inflections
     , neat-interpolation
+    , optparse-applicative
     , process
     , soothsayer
     , text
