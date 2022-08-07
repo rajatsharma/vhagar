@@ -61,6 +61,7 @@ initialise args = do
   writeFile "Makefile" $ pack makefileContents
   let dockerComposeContents = $(embedStringFile "template/docker-compose-dev.yml") *** [directoryName]
   writeFile "docker-compose-dev.yml" $ pack dockerComposeContents
+  writeFile "./graph/resolver.go" $(embedStringFile "template/resolver.go.template")
 
   callCommand "go get -u gorm.io/gorm"
   callCommand "go get -u gorm.io/driver/postgres"

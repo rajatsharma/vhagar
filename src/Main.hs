@@ -73,8 +73,8 @@ createModel =
 createRegen :: Parser Vhagar
 createRegen = pure Regen
 
-wipParser :: Parser Vhagar
-wipParser =
+vhagarParser :: Parser Vhagar
+vhagarParser =
   subparser $
     command "init" (info createInit $ progDesc "Initialise project")
       <> command "gen-model" (info createModel $ progDesc "Generate graphql model and db entity")
@@ -83,7 +83,7 @@ wipParser =
 runner :: Vhagar -> IO ()
 runner (Init name) = initialise $ InitArgs $ pack name
 runner (Model modelName modelNamePlural modelFields) = do
-  if not (null modelFields) then logExit "No fields supplied" else pure ()
+  if null modelFields then logExit "No fields supplied" else pure ()
   let fields = processField . pack <$> modelFields
   model $ ModelArgs (pack modelName) (pack modelNamePlural) fields
 runner Regen = regenerate
@@ -92,7 +92,7 @@ shell :: IO ()
 shell = runner =<< execParser opts
   where
     opts =
-      info (wipParser <**> helper) $
+      info (vhagarParser <**> helper) $
         fullDesc
           <> progDesc "Enter Command to run, see available commands for command descriptions."
           <> header "Vhagar"

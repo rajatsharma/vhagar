@@ -2,8 +2,10 @@
 
 module ModelGen where
 
+import Control.Exception (try)
 import Data.Text (Text, pack, toTitle, unpack)
 import Data.Text.IO (readFile, writeFile)
+import GHC.IO.Exception (IOException (IOError))
 import GODSL
   ( GoStructField (GoStructField),
     entityGenerateMarker,
@@ -26,29 +28,22 @@ import GQLDSL
     queryGenerateMarker,
     typeGenerateMarker,
   )
-import GenUtils (toTitleString, (++>), (+>>))
+import GenUtils (lineline, linetab, toTitleString, (++>), (+>>))
 import Soothsayer ((***))
 import System.Process (callCommand)
 import Prelude hiding (readFile, writeFile)
 
 data ModelArgs = ModelArgs {modelName :: Text, modelNamePlural :: Text, fields :: [GraphqlField]}
 
-identity :: a -> a
-identity x = x
-
 regenerate :: IO ()
 regenerate = callCommand "go run github.com/99designs/gqlgen generate"
 
 graphqlGenerator :: String -> String -> String -> [GraphqlField] -> Text -> Text
 graphqlGenerator entity entityPlural pkgName fields =
-  identity
-    . generateType
-    . generateCreateInput
-    . generateDeleteInput
-    . generateListQuery
-    . generateGetQuery
-    . generateCreateMutation
-    . generateDeleteMutation
+  gType
+    . input
+    . query
+    . mutation
   where
     fieldsWithId = fields ++ [GraphqlField "id" "ID!"]
     gqlType = createGraphqlType entity pkgName fieldsWithId
@@ -58,13 +53,10 @@ graphqlGenerator entity entityPlural pkgName fields =
     gqlGetQuery = createGetQuery entity
     gqlCreateMutation = createCreateMutation entity
     gqlDeleteMutation = createDeleteMutation entity
-    generateType = typeGenerateMarker ++> gqlType
-    generateCreateInput = inputGenerateMarker ++> gqlCreateInput
-    generateDeleteInput = inputGenerateMarker ++> gqlDeleteInput
-    generateListQuery = queryGenerateMarker +>> gqlListQuery
-    generateGetQuery = queryGenerateMarker +>> gqlGetQuery
-    generateCreateMutation = mutationGenerateMarker +>> gqlCreateMutation
-    generateDeleteMutation = mutationGenerateMarker +>> gqlDeleteMutation
+    gType = typeGenerateMarker ++> gqlType
+    input = inputGenerateMarker ++> (gqlCreateInput `lineline` gqlDeleteInput)
+    query = queryGenerateMarker +>> (gqlListQuery `linetab` gqlGetQuery)
+    mutation = mutationGenerateMarker +>> (gqlCreateMutation `linetab` gqlDeleteMutation)
 
 entityGenerator :: String -> [GoStructField] -> Text -> Text
 entityGenerator entity entityFields = useUuidImport . (entityGenerateMarker ++> entityStruct)
@@ -95,4 +87,13 @@ model args = do
   migrateFileContents <- readFile migrateFile
   let generateMigration = migrationGenerateMarker +>> ("db.AutoMigrate(&{0}{})" *** [toTitleString entity])
   writeFile migrateFile $ generateMigration migrateFileContents
-  regenerate
+
+  regenResult <- try regenerate :: IO (Either IOError ())
+  case regenResult of
+    Left e -> do
+      writeFile entityFile entityContents
+      writeFile schemaFile schemaContents
+      writeFile migrateFile migrateFileContents
+      regenerate
+      putStrLn "Schema generation failed, reverting..."
+    Right _ -> pure ()
