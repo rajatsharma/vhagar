@@ -1,4 +1,6 @@
-# Vhagar 🐉
+# Vhagar
+
+> 🐉 Toolbelt for generating Graphql APIs with Go
 
 ## Introduction
 
