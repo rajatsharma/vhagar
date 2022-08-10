@@ -1,8 +1,8 @@
-# Vhagar
+# Vhagar 🐉
 
 ## Introduction
 
-Vhagar is a command line tool which helps you bootstrap and maintain a Graphql Api. It is based on gqlgen and gorm. It generates structs, graphql schema and populates boilerplate code with a single command and lets you work on the main logic of the graphql resolvers.
+Vhagar is a command line tool which helps you bootstrap and maintain a Graphql Api which is based on [gqlgen](https://github.com/99designs/gqlgen) and [gorm](https://github.com/go-gorm/gorm). It generates structs, graphql schema and populates boilerplate code with a single command and lets you work on the main logic of the graphql resolvers.
 
 ## Usage
 
