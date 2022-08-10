@@ -3,19 +3,9 @@
 module Main where
 
 import Data.List (intersperse)
-import Data.Text (Text, pack, unpack)
-import qualified Data.Text as T
-import Data.Text.IO (readFile, writeFile)
-import qualified Data.Text.IO as T
+import Data.Text (Text, pack, splitOn, unpack)
 import GHC.IO (unsafePerformIO)
-import GODSL
-  ( GoStructField (GoStructField),
-    entityGenerateMarker,
-    goStruct,
-    parseGqlField,
-  )
-import GQLDSL (GraphqlField (..), createCreateMutation, createDeleteMutation, createGetQuery, createGraphqlCreateInput, createGraphqlDeleteInput, createGraphqlType, createListQuery, emptyMutation, emptyQuery, field, fieldType, inputGenerateMarker, mutationGenerateMarker, queryGenerateMarker, typeGenerateMarker)
-import GenUtils ((++>), (+>>), (~>))
+import GQLDSL (GraphqlField (..))
 import Initialise (InitArgs (..), initialise)
 import ModelGen (ModelArgs (..), model, regenerate)
 import Options.Applicative
@@ -53,7 +43,7 @@ logExit msg = do
 
 processField :: Text -> GraphqlField
 processField columnStr = unsafePerformIO $ do
-  case T.splitOn ":" columnStr of
+  case splitOn ":" columnStr of
     [name, typename] ->
       pure
         GraphqlField {field = unpack name, fieldType = unpack typename}

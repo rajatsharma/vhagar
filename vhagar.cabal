@@ -12,6 +12,7 @@ author:         Rajat Sharma
 maintainer:     rajatsharma@github.com
 copyright:      2022 Rajat Sharma
 license:        BSD3
+license-file:   LICENSE
 build-type:     Simple
 extra-source-files:
     README.md
@@ -23,6 +24,7 @@ executable vhagar
       GODSL
       GQLDSL
       Initialise
+      Markers
       ModelGen
       Paths_vhagar
   hs-source-dirs:

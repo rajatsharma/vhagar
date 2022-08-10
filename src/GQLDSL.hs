@@ -6,22 +6,11 @@ module GQLDSL where
 import Data.List (intercalate)
 import Data.Text (Text, pack, toTitle, unpack)
 import GenUtils (toTitleString)
+import Markers (mutationGenerateMarker, queryGenerateMarker)
 import NeatInterpolation (text)
 import Soothsayer ((***))
 
 data GraphqlField = GraphqlField {field :: String, fieldType :: String}
-
-typeGenerateMarker :: String
-typeGenerateMarker = "# kensai-generate-marker-type"
-
-inputGenerateMarker :: String
-inputGenerateMarker = "# kensai-generate-marker-input"
-
-queryGenerateMarker :: String
-queryGenerateMarker = "# kensai-generate-marker-query"
-
-mutationGenerateMarker :: String
-mutationGenerateMarker = "# kensai-generate-marker-mutation"
 
 createGraphqlField :: GraphqlField -> String
 createGraphqlField gqlField = "\t{0}: {1}" *** [field gqlField, fieldType gqlField]
@@ -51,10 +40,10 @@ createDeleteMutation :: String -> String
 createDeleteMutation name = "delete{0}(input: Delete{0}Input): {0}!" *** [toTitleString name]
 
 emptyQuery :: Text
-emptyQuery = "type Query {\n\t# kensai-generate-marker-query\n}"
+emptyQuery = pack $ "type Query {\n\t{0}\n}" *** [queryGenerateMarker]
 
 emptyMutation :: Text
-emptyMutation = "type Mutation {\n\t# kensai-generate-marker-mutation\n}"
+emptyMutation = pack $ "type Mutation {\n\t{0}\n}" *** [mutationGenerateMarker]
 
 goModeldirective :: Text
 goModeldirective =

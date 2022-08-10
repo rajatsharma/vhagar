@@ -7,15 +7,19 @@ import Data.FileEmbed
 import Data.Text (Text, intercalate, pack, unpack)
 import Data.Text.IO (readFile, writeFile)
 import GHC.TypeLits (ErrorMessage (Text))
-import GODSL (GoFuncArg (GoFuncArg), entityGenerateMarker, goFunc, goImport, goPackage, migrationGenerateMarker)
+import GODSL (GoFuncArg (GoFuncArg), goFunc, goImport, goPackage)
 import GQLDSL
   ( emptyMutation,
     emptyQuery,
     goModeldirective,
-    inputGenerateMarker,
-    typeGenerateMarker,
   )
 import GenUtils (lineline)
+import Markers
+  ( entityGenerateMarker,
+    inputGenerateMarker,
+    migrationGenerateMarker,
+    typeGenerateMarker,
+  )
 import Soothsayer ((***))
 import System.Directory (createDirectoryIfMissing, getCurrentDirectory)
 import System.FilePath (takeBaseName)

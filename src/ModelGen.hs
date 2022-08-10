@@ -8,9 +8,7 @@ import Data.Text.IO (readFile, writeFile)
 import GHC.IO.Exception (IOException (IOError))
 import GODSL
   ( GoStructField (GoStructField),
-    entityGenerateMarker,
     goStruct,
-    migrationGenerateMarker,
     parseGqlField,
     useUuidImport,
   )
@@ -23,12 +21,16 @@ import GQLDSL
     createGraphqlDeleteInput,
     createGraphqlType,
     createListQuery,
+  )
+import GenUtils (lineline, linetab, toTitleString, (++>), (+>>))
+import Markers
+  ( entityGenerateMarker,
     inputGenerateMarker,
+    migrationGenerateMarker,
     mutationGenerateMarker,
     queryGenerateMarker,
     typeGenerateMarker,
   )
-import GenUtils (lineline, linetab, toTitleString, (++>), (+>>))
 import Soothsayer ((***))
 import System.Process (callCommand)
 import Prelude hiding (readFile, writeFile)

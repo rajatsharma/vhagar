@@ -31,12 +31,6 @@ createGoStructField field = "\t{0} {1} {2}" *** [structFieldName field, structFi
 goStruct :: String -> [GoStructField] -> String
 goStruct name field = "type {0} struct {\n{1}\n}" *** [toTitleString name, intercalate "\n" (createGoStructField <$> field)]
 
-migrationGenerateMarker :: String
-migrationGenerateMarker = "// kensai-generate-marker-migration"
-
-entityGenerateMarker :: String
-entityGenerateMarker = "// kensai-generate-marker-entity"
-
 handleOptional :: Text -> Text
 handleOptional gqlType
   | "!" `isSuffixOf` gqlType = fromMaybe "" $ stripSuffix "!" gqlType
